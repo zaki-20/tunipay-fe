@@ -7,8 +7,17 @@ import { GrContactInfo } from "react-icons/gr";
 import logo1 from "../../../assets/tunipay-logo/Logo1.png";
 import logo2 from "../../../assets/tunipay-logo/Logo2.png";
 import { Link } from "react-router-dom";
+import { useLogout } from "../../../hooks/useLogout";
+import { useAuthContext } from "../../../hooks/useAuthContext";
 
 const Navbar = () => {
+  const { logout } = useLogout();
+  const { user } = useAuthContext();
+  const handleLogout = () => {
+    logout();
+  };
+
+  console.log("user flag from navbar", user?.email)
   return (
     <Disclosure as="nav" className="bg-[#ffffff] w-full ">
       {({ open }) => (
@@ -26,7 +35,7 @@ const Navbar = () => {
                 <div className="flex spax-x-2 xl:space-x-4 ">
                   {/* Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" */}
                   <div className="relative group px-3 py-2 font-medium text-sm 2xl:text-lg text-black cursor-pointer ">
-                    Home
+                    Home 
                     <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#B275F7] transition-all duration-300 transform scale-x-0 group-hover:scale-x-100"></div>
                   </div>
 
@@ -54,7 +63,9 @@ const Navbar = () => {
 
               <div className="flex gap-x-2 justify-center items-center sm:ml-0 ml-20">
                 <div className="flex gap-x-2 mr-10 justify-center items-center">
-                  <span className="hidden sm:block">search</span>
+                  <Link to={'/profile'}>
+                  <span className="hidden sm:block"> search</span>
+                  </Link>
                   <Link to="/cart" role="button" className="relative flex ">
                     <svg
                       className="flex-1 w-8 h-8 fill-current hover:scale-110 duration-200"
@@ -69,16 +80,27 @@ const Navbar = () => {
                 </div>
 
                 <div className="flex gap-x-1 sm:gap-x-4">
-                  <Link to={'/register'}>
-                    <button className="text-xs sm:text-base px-2 sm:px-3 py-2 rounded-md border sm:border-2 border-[#2D56FF] bg-[#2D56FF] text-white">
-                      register
+                  {user ? (
+                    <button
+                      onClick={handleLogout}
+                      className="text-xs sm:text-base px-2 sm:px-3 py-2 rounded-md border sm:border-2 border-[#2D56FF] bg-[#2D56FF] text-white"
+                    >
+                      Logout
                     </button>
-                  </Link>
-                  <Link to={'/register'}>
-                    <button className="text-xs sm:text-base px-2 sm:px-3 py-2 rounded-md border sm:border-2 text-[#2D56FF] border-[#2D56FF] ">
-                      Sign In
-                    </button>
-                  </Link>
+                  ) : (
+                    <>
+                      <Link to={"/register"}>
+                        <button className="text-xs sm:text-base px-2 sm:px-3 py-2 rounded-md border sm:border-2 border-[#2D56FF] bg-[#2D56FF] text-white">
+                          register
+                        </button>
+                      </Link>
+                      <Link to={"/register"}>
+                        <button className="text-xs sm:text-base px-2 sm:px-3 py-2 rounded-md border sm:border-2 text-[#2D56FF] border-[#2D56FF] ">
+                          Sign In
+                        </button>
+                      </Link>
+                    </>
+                  )}
                 </div>
               </div>
 

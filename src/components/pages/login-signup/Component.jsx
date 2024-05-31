@@ -7,9 +7,9 @@ export const Container = styled.div`
   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
   position: relative;
   /* overflow: hidden; */
-  width: 1000px;
+  width: 70vw;
   max-width: 100%;
-  min-height: 700px;
+  min-height: 90vh;
 `;
 
 export const SignUpContainer = styled.div`
@@ -83,6 +83,7 @@ export const Label = styled.label`
 export const Input = styled.input`
   background-color: #eee;
   border: none;
+  border: ${(props) => (props.hasError ? "1px solid red" : "none")};
   padding: 12px 15px;
   margin: 8px 0;
   width: 100%;
@@ -96,6 +97,8 @@ export const Button = styled.button`
   font-size: 12px;
   font-weight: bold;
   width: 100%;
+  height: 45px;
+  margin-top: 15px;
   padding: 12px 45px;
   letter-spacing: 1px;
   text-transform: uppercase;

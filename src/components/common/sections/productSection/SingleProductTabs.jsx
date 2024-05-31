@@ -63,7 +63,7 @@ const SingleProductTabs = ({ data }) => {
             </div>
             <div className="grid gap-8 row-gap-10 md:grid-cols-2 lg:grid-cols-3">
               {data.result.item.properties.list.map((item, index) => (
-                <div className="w-[400px] sm:mx-auto flex flex-col justify-center gap-y-3 border border-gray-400 rounded-md py-4 px-4">
+                <div key={index} className="w-[400px] sm:mx-auto flex flex-col justify-center gap-y-3 border border-gray-400 rounded-md py-4 px-4">
                   <h6 className=" text-xl font-bold ">{item.name}</h6>
                   <p className=" text-gray-900">{item.value}</p>
                 </div>

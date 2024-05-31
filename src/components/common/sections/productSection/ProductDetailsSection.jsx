@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { CiSquarePlus, CiSquareMinus } from "react-icons/ci";
 import Breadcrumbs from "../../menu/BreadCrumbs";
 import { products } from "../../../../data/products";
@@ -13,9 +13,34 @@ const ProductDetailsSection = () => {
     { href: "/product-detail", label: "Product Detail", active: true },
   ];
 
-  const [selectedColor, setSelectedColor] = useState("");
-  const [selectedBundle, setSelectedBundle] = useState("");
-  const [selectedSku, setSelectedSku] = useState(null);
+  // const initialColor = data.product.result.item.sku.props.find(
+  //   (prop) => prop.name === "Color"
+  // ).values[0].propTips;
+
+  // const initialBundle = data.product.result.item.sku.props.find(
+  //   (prop) => prop.name === "Bundle"
+  // ).values[0].propTips;
+
+  const getDefaultProp = (propName) => {
+    const prop = data.product.result.item.sku.props.find(
+      (prop) => prop.name === propName
+    );
+    return prop ? prop.values[0].propTips : null;
+  };
+
+  const initialColor = getDefaultProp("Color");
+  const initialBundle = getDefaultProp("Bundle");
+
+  const [selectedColor, setSelectedColor] = useState(initialColor);
+  const [selectedBundle, setSelectedBundle] = useState(initialBundle);
+  const [selectedSku, setSelectedSku] = useState("");
+  const [mainImage, setMainImage] = useState(products[0].item.image);
+
+  useEffect(() => {
+    if (initialColor || initialBundle) {
+      updateSelectedSku(initialColor, initialBundle);
+    }
+  }, []);
 
   const handleColorClick = (color) => {
     setSelectedColor(color);
@@ -30,13 +55,26 @@ const ProductDetailsSection = () => {
   const updateSelectedSku = (color, bundle) => {
     const matchingSku = data.product.result.item.sku.base.find((item) => {
       const props = item.skuAttr.split(";");
-      console.log("====>", props);
-      const colorMatch = props.some((prop) => prop.includes(color));
-      const bundleMatch = props.some((prop) => prop.includes(bundle));
+      const colorMatch = color
+        ? props.some((prop) => {
+            const [key, value] = prop.split("#");
+            return value === color;
+          })
+        : true;
+      const bundleMatch = bundle
+        ? props.some((prop) => {
+            const [key, value] = prop.split("#");
+            return value === bundle;
+          })
+        : true;
       return colorMatch && bundleMatch;
     });
 
     setSelectedSku(matchingSku);
+  };
+
+  const handleThumbnailClick = (image) => {
+    setMainImage(image);
   };
 
   //for star rating
@@ -58,7 +96,7 @@ const ProductDetailsSection = () => {
             <div class="lg:col-span-3 w-full lg:sticky top-0 text-center flex justify-center items-center">
               <div class="px-4 py-10 w-[75%] flex justify-center  order-2 rounded-xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.3)] relative">
                 <img
-                  src={products[0].item.image}
+                  src={mainImage}
                   alt="Product"
                   class="rounded object-cover"
                 />
@@ -66,7 +104,11 @@ const ProductDetailsSection = () => {
 
               <div class=" flex flex-col  max-h-[450px] overflow-scroll w-1/4 ">
                 {data.product.result.item.images.map((image, index) => (
-                  <div class="rounded-xl p-4 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.3)]">
+                  <div
+                    key={index}
+                    className="rounded-xl p-4 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.3)]"
+                    onClick={() => handleThumbnailClick(image)}
+                  >
                     <img
                       src={image}
                       alt="Product2"
@@ -74,8 +116,6 @@ const ProductDetailsSection = () => {
                     />
                   </div>
                 ))}
-
-            
               </div>
             </div>
 
@@ -84,6 +124,7 @@ const ProductDetailsSection = () => {
                 <h2 class="text-2xl font-extrabold text-black text-[26px]">
                   {products[0].item.title}
                 </h2>
+                <span></span>
               </div>
 
               <div className="flex mt-3  border-blue-900 gap-x-2 items-center">
@@ -98,58 +139,60 @@ const ProductDetailsSection = () => {
                   {selectedSku && selectedSku.price}
                 </p>
               </div>
-
-              <div className="">
-                <div className="mt-4">
-                  <p className="font-bold ">Select Color:</p>
-                  <div className="flex gap-2">
-                    {data.product.result.item.sku.props
-                      .find((prop) => prop.name === "Color")
-                      .values.map((value) => (
-                        <button
-                          className=" hover:border-blue-700 rounded-md  border-2 py-2 px-4 gap-x-2"
-                          key={value.vid}
-                          // onClick={() => handleColorClick(value.propTips)}
-                          style={{
-                            backgroundColor:
-                              selectedColor === value.propTips
-                                ? "lightblue"
-                                : "white",
-                          }}
-                        >
-                          {value.name}
-                        </button>
-                      ))}
+              {initialColor && (
+                <div className="">
+                  <div className="mt-4">
+                    <p className="font-bold ">Select Color:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {data.product.result.item.sku.props
+                        .find((prop) => prop.name === "Color")
+                        .values.map((value) => (
+                          <button
+                            className=" hover:border-blue-700 text-nowrap rounded-md  border-2 py-2 px-4 gap-x-2"
+                            key={value.vid}
+                            onClick={() => handleColorClick(value.propTips)}
+                            style={{
+                              backgroundColor:
+                                selectedColor === value.propTips
+                                  ? "lightblue"
+                                  : "white",
+                            }}
+                          >
+                            {value.name}
+                          </button>
+                        ))}
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
-              <div>
-                <div className="mt-4">
-                  <p className="font-bold">Select Bundle:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {data.product.result.item.sku.props
-                      .find((prop) => prop.name === "Bundle")
-                      .values.map((value) => (
-                        <button
-                          className=" hover:border-blue-700 rounded-md  border-2 py-2 px-4 gap-x-2"
-                          key={value.vid}
-                          // onClick={() => handleBundleClick(value.propTips)}
-                          style={{
-                            backgroundColor:
-                              selectedBundle === value.propTips
-                                ? "lightblue"
-                                : "white",
-                          }}
-                        >
-                          {value.name}
-                        </button>
-                      ))}
+              {initialBundle && (
+                <div>
+                  <div className="mt-4">
+                    <p className="font-bold">Select Bundle:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {data.product.result.item.sku.props
+                        .find((prop) => prop.name === "Bundle")
+                        .values.map((value) => (
+                          <button
+                            className=" hover:border-blue-700 rounded-md  border-2 py-2 px-4 gap-x-2"
+                            key={value.vid}
+                            onClick={() => handleBundleClick(value.propTips)}
+                            style={{
+                              backgroundColor:
+                                selectedBundle === value.propTips
+                                  ? "lightblue"
+                                  : "white",
+                            }}
+                          >
+                            {value.name}
+                          </button>
+                        ))}
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
-           
               {/* <div className="flex justify-start mt-4">
                 <div className="flex gap-x-3 justify-center items-center rounded-xl p-2">
                   <span>Fire</span>
